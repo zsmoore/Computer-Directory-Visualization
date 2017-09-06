@@ -51,9 +51,8 @@ def load_from_file(file_name):
 
 
 ''' Create a render for a graph given a dict '''
-def visualize(data):
+def visualize(data, out_file):
 
-    #g = gv.Graph(engine='sfdp')
     g = gv.Graph()
     queue = ['home']
     visited = set('home')
@@ -74,8 +73,10 @@ def visualize(data):
                     print(node)
                     g.node(neighbor)
                     g.edge(node, neighbor)
-
-    g.render(filename='try20')
+    
+    g.save(out_file)
+    os.system('dot -Tsvg -Ksfdp {0} > {1}'.format(out_file, out_file + '.svg'))
+    os.system('rm {0}'.format(out_file))
 
 ''' Get the path from the root to the current node '''
 def get_path(prev, node):
@@ -116,9 +117,18 @@ def main():
     if len(sys.argv) < 2:
         print('Incorrect usage, arg path to trace is needed')
         exit()
+    if len(sys.argv) < 3:
+        print('Incorrect usage, output file name is also needed')
+        exit()
+    
     path_to_trace = sys.argv[1]
     if path_to_trace[0] != '/':
         print('Incorrect usage, arg path to trace has to be direct from root')
+        exit()
+
+    out_file = sys.argv[2]
+    if '.' in out_file:
+        print('Incorrect usave, file name cannot have . in it')
         exit()
 
     structure = trace_path(os.path.expanduser(path_to_trace))
@@ -126,7 +136,7 @@ def main():
 
     data = load_from_file(default_file)
 
-    visualize(data)
+    visualize(data, out_file)
 
 
 if __name__ == '__main__':
