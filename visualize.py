@@ -3,6 +3,7 @@ import pprint
 import time
 import json
 import graphviz as gv
+import sys
 
 ''' Build dict representing directory tree from start '''
 def trace_path(start):
@@ -12,6 +13,8 @@ def trace_path(start):
     for root, dirs, files in os.walk(start):
         current_dict = layout
         path = root.split('/')
+        if path[-1] == '':
+            path.pop()
         if path[-1][0] == '.' :
             print('hidden')
             #time.sleep(10)
@@ -72,7 +75,7 @@ def visualize(data):
                     g.node(neighbor)
                     g.edge(node, neighbor)
 
-    g.render(filename='try11')
+    g.render(filename='try20')
 
 ''' Get the path from the root to the current node '''
 def get_path(prev, node):
@@ -109,8 +112,16 @@ def check_encode(to_check):
 def main():
     
     default_file = 'graph.json'
+    
+    if len(sys.argv) < 2:
+        print('Incorrect usage, arg path to trace is needed')
+        exit()
+    path_to_trace = sys.argv[1]
+    if path_to_trace[0] != '/':
+        print('Incorrect usage, arg path to trace has to be direct from root')
+        exit()
 
-    structure = trace_path(os.path.expanduser('~/programming'))
+    structure = trace_path(os.path.expanduser(path_to_trace))
     write_to_file(default_file, structure)
 
     data = load_from_file(default_file)
